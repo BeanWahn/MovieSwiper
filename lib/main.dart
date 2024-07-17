@@ -1,11 +1,36 @@
 import 'package:movie_swiper/models/movie.dart';
+import 'package:movie_swiper/presentation/pages/login_page.dart';
 import 'package:movie_swiper/presentation/pages/movie_details.dart';
+import 'package:movie_swiper/presentation/pages/registration_page.dart';
 import 'package:movie_swiper/presentation/pages/watchlist_page.dart';
 import 'presentation/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
+User? user = FirebaseAuth.instance.currentUser;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // await FirebaseAuth.instance.useAuthEmulator('https://127.0.0.1', 9099);
+  
+  FirebaseAuth.instance
+  .authStateChanges()
+  .listen((User? user) {
+    if (user == null) {
+      print('User is currently signed out!');
+    } else {
+      print('User is signed in!');
+    }
+    user = user;
+  });
+
   runApp(const MyApp());
 }
 
@@ -15,9 +40,25 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return const HomePage(title: 'Home');
+        if(user == null) {
+          return LoginPage();
+        } else {
+          return const HomePage();
+        }
       },
       routes: <RouteBase>[
+        GoRoute(
+          path: 'login',
+          builder: (BuildContext context, GoRouterState state) {
+            return LoginPage();
+          },
+        ),
+        GoRoute(
+          path: 'register',
+          builder: (BuildContext context, GoRouterState state) {
+            return const RegistrationPage();
+          },
+        ),
         GoRoute(
           path: 'details',
           builder: (BuildContext context, GoRouterState state) {

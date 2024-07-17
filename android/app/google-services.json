@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "242846884818",
+    "project_id": "movieswiper-b669b",
+    "storage_bucket": "movieswiper-b669b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242846884818:android:ea440b691de4c12b62de0b",
+        "android_client_info": {
+          "package_name": "com.movieswiper.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1nTqvzPf-M4GYtisNPEez28Mc-Cv3MlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

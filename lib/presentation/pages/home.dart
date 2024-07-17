@@ -1,34 +1,48 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:movie_swiper/models/filter_list.dart';
 import 'package:movie_swiper/models/movie.dart';
 import 'package:movie_swiper/presentation/components/footer.dart';
 import 'package:movie_swiper/presentation/components/movie_card.dart';
+import 'package:movie_swiper/services/genre_service.dart';
 import 'package:movie_swiper/services/movies_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-  final String title;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  Random rnd = new Random();
+  int min = 1;
+  int max = 500;
   int page = 1;
 
   MoviesService moviesService = MoviesService();
+  GenreService genreService = GenreService();
+  List<dynamic> genres = [];
   List<Movie> movies = [];
 
+  FilterList filters = FilterList(
+    genres: [],
+  );
+  
   @override
   void initState() {
+    page = min + rnd.nextInt(max - min);
+    genres = genreService.genres;
+    print(genres);
     super.initState();
   }
 
   Future<List<MovieCard>> getMovies(int page) async {
-    Response response = await moviesService.fetchMovies(page);
+    Response response = await moviesService.fetchMovies(page, filters);
     List<MovieCard> newCards = [];
     for (var movie in json.decode(response.body)['results']) {
       try {
@@ -49,11 +63,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: const Text("Home"),
           actions: [
             Builder(
               builder: (context) => IconButton(
-                icon: Icon(Icons.filter_alt_rounded),
+                icon: const Icon(Icons.filter_alt_rounded),
                 onPressed: () => Scaffold.of(context).openEndDrawer(),
                 tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
               ),
@@ -69,19 +83,30 @@ class _HomePageState extends State<HomePage> {
             // Important: Remove any padding from the ListView.
             padding: EdgeInsets.zero,
             children: [
-              ListTile(
-                title: const Text('Item 1'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                title: const Text('Item 2'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
+              Column(
+                children: genres.map((genre) => ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                  minVerticalPadding: 0,
+                  selected: filters.genres!.contains(genre['id']),
+                  selectedColor: Colors.blue,
+                  title: Text(
+                    "${genre['name']}",
+                    style: TextStyle(
+                      fontSize: 14,
+                    )),
+                  onTap: () {
+                    setState(() {
+                      if (filters.genres!.contains(genre['id'])) {
+                        filters.genres!.remove(genre['id']);
+                      } else {
+                        filters.genres!.add(genre['id']);
+                      }
+                    });
+                    print(filters.genres);
+                    print(genre['id']);
+                    print(filters.genres!.contains(genre['id']));
+                  },
+                )).toList(),
               ),
             ],
           )),
@@ -100,24 +125,36 @@ class _HomePageState extends State<HomePage> {
                 );
               }
               List<MovieCard> cards = snapshot.data!;
-              return SafeArea(
+              if(cards.isNotEmpty){
+                return SafeArea(
                   child: Column(children: [
-                Expanded(
-                  child: CardSwiper(
-                    onEnd: () => {
-                      setState(() {
-                        page += 1;
-                      }),
-                    },
-                    isLoop: false,
-                    cardsCount: cards.length,
-                    cardBuilder: (context, index, percentThresholdX,
-                            percentThresholdY) =>
-                        cards[index],
+                  Expanded(
+                    child: CardSwiper(
+                      onEnd: () => {
+                        setState(() {
+                          page += 1;
+                        }),
+                      },
+                      isLoop: false,
+                      cardsCount: cards.length,
+                      cardBuilder: (context, index, percentThresholdX,
+                              percentThresholdY) =>
+                          cards[index],
+                    ),
                   ),
-                ),
-                Footer(),
-              ]));
+                  Footer(),
+                ]));
+              }else{
+                return SafeArea(
+                  child: Column(children: [
+                  const Expanded(
+                    child: Center(
+                      child: Text("No movies found"),
+                    ),
+                  ),
+                  Footer(),
+                ]));
+              }
             }
           },
         ));

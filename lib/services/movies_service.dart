@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie_swiper/models/filter_list.dart';
 import 'package:movie_swiper/models/movie.dart';
 
 class MoviesService {
@@ -43,15 +44,25 @@ class MoviesService {
     return recommendations;
   }
 
-  Future<http.Response> fetchMovies(int page) async {
-    final url = Uri.parse("https://api.themoviedb.org/3/discover/movie"
+  Future<http.Response> fetchMovies(int page, FilterList? filters) async {
+    if(page > 500 || page < 1) {
+      page = 1;
+    }
+    String urlString = "https://api.themoviedb.org/3/discover/movie"
     "?api_key=7b42befb557378d22a24fdd7011ef7d5"
     "&language=en-US"
     "&sort_by=popularity.desc"
     "&include_adult=false"
     "&include_video=false"
-    "&page=$page");
+    "&page=$page";
+    if(filters != null && filters.genres!.isNotEmpty) {
+      urlString+="&with_genres=${filters.genres!.join(",")}";
+    }
+    final url = Uri.parse(urlString);
     final result = await http.get(url);
+    if(json.decode(result.body)['results'] == null || json.decode(result.body)['results'].length <= 0) {
+      return http.Response('{"results": []}', 200);
+    }
     return result;
   }
 }

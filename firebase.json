@@ -1,0 +1,41 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "movieswiper-b669b",
+          "appId": "1:242846884818:android:ea440b691de4c12b62de0b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "movieswiper-b669b",
+          "appId": "1:242846884818:ios:d6f846ab7504450762de0b",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "movieswiper-b669b",
+          "appId": "1:242846884818:ios:d6f846ab7504450762de0b",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "movieswiper-b669b",
+          "configurations": {
+            "android": "1:242846884818:android:ea440b691de4c12b62de0b",
+            "ios": "1:242846884818:ios:d6f846ab7504450762de0b",
+            "macos": "1:242846884818:ios:d6f846ab7504450762de0b",
+            "web": "1:242846884818:web:6a6da2140e430bc062de0b",
+            "windows": "1:242846884818:web:10dd6ae38d9dfaac62de0b"
+          }
+        }
+      }
+    }
+  }
+}
