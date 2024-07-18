@@ -1,4 +1,4 @@
-package com.example.movie_swiper
+package com.russellbj.movie_swiper
 
 import io.flutter.embedding.android.FlutterActivity
 
