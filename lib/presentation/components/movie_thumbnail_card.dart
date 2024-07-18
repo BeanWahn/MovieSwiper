@@ -20,9 +20,17 @@ class _MovieThumbnailCardState extends State<MovieThumbnailCard> {
   final MoviesService moviesService = MoviesService();
   final GenreService genreService = GenreService();
   final List genres = GenreService().genres;
-
+  
   @override
   Widget build(BuildContext context) {
+    String movieImage = "https://placehold.co/200x400.png?text=No+Image";
+    if(widget.movie.backdropPath != null) {
+      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.backdropPath!}";
+    }
+    if(widget.movie.posterPath != null) {
+      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.posterPath!}";
+    }
+
     return InkWell(
       child: Container(
       width: double.infinity,
@@ -31,7 +39,7 @@ class _MovieThumbnailCardState extends State<MovieThumbnailCard> {
         borderRadius: BorderRadius.circular(10), // Add border radius of 10
         image: DecorationImage(
           image: NetworkImage(
-            'https://image.tmdb.org/t/p/original${widget.movie.backdropPath ?? widget.movie.posterPath}',
+            movieImage,
           ),
           fit: BoxFit.cover,
         ),

@@ -76,7 +76,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 },
                 child: Text('Register'),
               ),
-              Row(children: [
+              const Row(children: [
                 Expanded(child: Divider()),
                 Padding(
                   padding: const EdgeInsets.all(14.0),
@@ -84,7 +84,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 ),
                 Expanded(child: Divider()),
               ]),
-              Text("Already have an account?"),
+              const Text("Already have an account?"),
               TextButton(
                 onPressed: () {
                   context.go('/login');

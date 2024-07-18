@@ -23,13 +23,21 @@ class _MovieCardState extends State<MovieCard> {
 
   @override
   Widget build(BuildContext context) {
+    String movieImage = "https://placehold.co/200x400.png?text=No+Image";
+    if(widget.movie.backdropPath != null) {
+      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.backdropPath!}";
+    }
+    if(widget.movie.posterPath != null) {
+      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.posterPath!}";
+    }
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10), // Add border radius of 10
         image: DecorationImage(
           image: NetworkImage(
-            'https://image.tmdb.org/t/p/original${widget.movie.backdropPath ?? widget.movie.posterPath}',
+            movieImage
           ),
           fit: BoxFit.cover,
         ),

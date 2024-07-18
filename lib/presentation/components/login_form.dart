@@ -29,7 +29,7 @@ class _LoginFormState extends State<LoginForm> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Username',
+                  labelText: 'Email',
                 ),
               ),
               SizedBox(height: 16),

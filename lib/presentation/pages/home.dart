@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   int min = 1;
   int max = 500;
   int page = 1;
+  bool resetPageIfEmpty = false;
 
   MoviesService moviesService = MoviesService();
   GenreService genreService = GenreService();
@@ -32,17 +33,18 @@ class _HomePageState extends State<HomePage> {
   FilterList filters = FilterList(
     genres: [],
   );
-  
+
   @override
   void initState() {
     page = min + rnd.nextInt(max - min);
     genres = genreService.genres;
-    print(genres);
     super.initState();
   }
 
-  Future<List<MovieCard>> getMovies(int page) async {
-    Response response = await moviesService.fetchMovies(page, filters);
+  Future<List<MovieCard>> getMovies() async {
+    Response response = await moviesService.fetchMovies(page, filters, resetPageIfEmpty: resetPageIfEmpty);
+    resetPageIfEmpty = false;
+    page = json.decode(response.body)['page'];
     List<MovieCard> newCards = [];
     for (var movie in json.decode(response.body)['results']) {
       try {
@@ -84,54 +86,56 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.zero,
             children: [
               Column(
-                children: genres.map((genre) => ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                  minVerticalPadding: 0,
-                  selected: filters.genres!.contains(genre['id']),
-                  selectedColor: Colors.blue,
-                  title: Text(
-                    "${genre['name']}",
-                    style: TextStyle(
-                      fontSize: 14,
-                    )),
-                  onTap: () {
-                    setState(() {
-                      if (filters.genres!.contains(genre['id'])) {
-                        filters.genres!.remove(genre['id']);
-                      } else {
-                        filters.genres!.add(genre['id']);
-                      }
-                    });
-                    print(filters.genres);
-                    print(genre['id']);
-                    print(filters.genres!.contains(genre['id']));
-                  },
-                )).toList(),
+                children: genres
+                    .map((genre) => ListTile(
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                          minVerticalPadding: 0,
+                          selected: filters.genres!.contains(genre['id']),
+                          selectedColor: Colors.blue,
+                          title: Text("${genre['name']}",
+                              style: TextStyle(
+                                fontSize: 14,
+                              )),
+                          onTap: () {
+                            setState(() {
+                              page = min + rnd.nextInt(max - min);
+                              if (filters.genres!.contains(genre['id'])) {
+                                filters.genres!.remove(genre['id']);
+                              } else {
+                                filters.genres!.add(genre['id']);
+                              }
+                            });
+                            print(filters.genres);
+                          },
+                        ))
+                    .toList(),
               ),
             ],
           )),
         ),
-        body: FutureBuilder(
-          future: getMovies(page),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              if (snapshot.data == null) {
+        body: Column(children: [
+          Expanded(
+            child: FutureBuilder(
+            future: getMovies(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: Text("No movies found"),
+                  child: CircularProgressIndicator(),
                 );
-              }
-              List<MovieCard> cards = snapshot.data!;
-              if(cards.isNotEmpty){
-                return SafeArea(
-                  child: Column(children: [
-                  Expanded(
+              } else {
+                if (snapshot.data == null) {
+                  return const Center(
+                    child: Text("No movies found"),
+                  );
+                }
+                List<MovieCard> cards = snapshot.data!;
+                if (cards.isNotEmpty) {
+                  return SafeArea(
                     child: CardSwiper(
                       onEnd: () => {
                         setState(() {
+                          resetPageIfEmpty = true;
                           page += 1;
                         }),
                       },
@@ -141,22 +145,18 @@ class _HomePageState extends State<HomePage> {
                               percentThresholdY) =>
                           cards[index],
                     ),
-                  ),
-                  Footer(),
-                ]));
-              }else{
-                return SafeArea(
-                  child: Column(children: [
-                  const Expanded(
+                  );
+                } else {
+                  return const SafeArea(
                     child: Center(
                       child: Text("No movies found"),
                     ),
-                  ),
-                  Footer(),
-                ]));
+                  );
+                }
               }
-            }
-          },
-        ));
+            },
+          )),
+          Footer()
+        ]));
   }
 }

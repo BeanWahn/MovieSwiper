@@ -44,10 +44,11 @@ class MoviesService {
     return recommendations;
   }
 
-  Future<http.Response> fetchMovies(int page, FilterList? filters) async {
-    if(page > 500 || page < 1) {
+  Future<http.Response> fetchMovies(int page, FilterList? filters, {bool resetPageIfEmpty = false}) async {
+    if(page > 500) {
       page = 1;
     }
+    print(page);
     String urlString = "https://api.themoviedb.org/3/discover/movie"
     "?api_key=7b42befb557378d22a24fdd7011ef7d5"
     "&language=en-US"
@@ -61,8 +62,38 @@ class MoviesService {
     final url = Uri.parse(urlString);
     final result = await http.get(url);
     if(json.decode(result.body)['results'] == null || json.decode(result.body)['results'].length <= 0) {
-      return http.Response('{"results": []}', 200);
+      if(page <= 1){
+        return http.Response('{"results": []}', 200);
+      }
+      if(resetPageIfEmpty){
+        page = 1;
+      }else{
+        page = (page / 2).round();
+      }
+      return fetchMovies(page, filters);
     }
     return result;
+  }
+
+  Future<List<Movie>> searchMovies(String searchTerm) async {
+    final url = Uri.parse("https://api.themoviedb.org/3/search/movie"
+        "?api_key=7b42befb557378d22a24fdd7011ef7d5"
+        "&language=en-US"
+        "&query=$searchTerm"
+        "&page=1"
+        "&include_adult=false");
+    final result = await http.get(url);
+    if (result.statusCode == 200) {
+      final jsonData = json.decode(result.body);
+      final movieData = jsonData['results'];
+      List<Movie> movies = [];
+      for (var data in movieData) {
+        final movie = Movie.fromJson(data);
+        movies.add(movie);
+      }
+      return movies;
+    } else {
+      throw Exception('Failed to search movies');
+    }
   }
 }

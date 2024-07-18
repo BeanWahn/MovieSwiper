@@ -2,6 +2,7 @@ import 'package:movie_swiper/models/movie.dart';
 import 'package:movie_swiper/presentation/pages/login_page.dart';
 import 'package:movie_swiper/presentation/pages/movie_details.dart';
 import 'package:movie_swiper/presentation/pages/registration_page.dart';
+import 'package:movie_swiper/presentation/pages/search_page.dart';
 import 'package:movie_swiper/presentation/pages/watchlist_page.dart';
 import 'presentation/pages/home.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,12 @@ final GoRouter _router = GoRouter(
           path: 'watchlist',
           builder: (BuildContext context, GoRouterState state) {
             return const WatchlistPage();
+          },
+        ),
+        GoRoute(
+          path: 'search',
+          builder: (BuildContext context, GoRouterState state) {
+            return SearchPage();
           },
         ),
       ],

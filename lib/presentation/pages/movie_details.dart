@@ -20,7 +20,14 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
   final List genres = GenreService().genres;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
+    String movieImage = "https://placehold.co/200x400.png?text=No+Image";
+    if(widget.movie.backdropPath != null) {
+      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.backdropPath!}";
+    }
+    if(widget.movie.posterPath != null) {
+      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.posterPath!}";
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.movie.title),
@@ -37,7 +44,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
         //       ),
         //     )),
         Image(image: NetworkImage(
-          'https://image.tmdb.org/t/p/original${widget.movie.posterPath ?? widget.movie.backdropPath}',
+          movieImage
         ),
         fit: BoxFit.fitWidth,),
         Container(

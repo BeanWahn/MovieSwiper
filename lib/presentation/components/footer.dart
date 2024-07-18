@@ -22,7 +22,7 @@ class _FooterState extends State<Footer> {
         IconButton(
           icon: Icon(Icons.search),
           onPressed: () {
-            // Add your logic here
+            context.go('/search');
           },
         ),
         IconButton(
