@@ -34,7 +34,6 @@ class _WatchlistPageState extends State<WatchlistPage> {
               return Text('Error: ${snapshot.error}');
             } else {
               final watchlist = snapshot.data;
-              print(watchlist);
               if(watchlist == null || watchlist.isEmpty) {
                 return const Text('No movies in watchlist');
               }else{
