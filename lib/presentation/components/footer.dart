@@ -34,7 +34,7 @@ class _FooterState extends State<Footer> {
         IconButton(
           icon: Icon(Icons.settings),
           onPressed: () {
-            // Add your logic here
+            context.go('/settings');
           },
         ),
       ],

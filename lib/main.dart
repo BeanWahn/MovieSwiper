@@ -3,6 +3,7 @@ import 'package:movie_swiper/presentation/pages/login_page.dart';
 import 'package:movie_swiper/presentation/pages/movie_details.dart';
 import 'package:movie_swiper/presentation/pages/registration_page.dart';
 import 'package:movie_swiper/presentation/pages/search_page.dart';
+import 'package:movie_swiper/presentation/pages/settings_page.dart';
 import 'package:movie_swiper/presentation/pages/watchlist_page.dart';
 import 'presentation/pages/home.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ final GoRouter _router = GoRouter(
         if(user == null) {
           return LoginPage();
         } else {
-          return const HomePage();
+          return HomePage(user:user);
         }
       },
       routes: <RouteBase>[
@@ -70,13 +71,19 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: 'watchlist',
           builder: (BuildContext context, GoRouterState state) {
-            return const WatchlistPage();
+            return WatchlistPage(user:user);
           },
         ),
         GoRoute(
           path: 'search',
           builder: (BuildContext context, GoRouterState state) {
             return SearchPage();
+          },
+        ),
+        GoRoute(
+          path: 'settings',
+          builder: (BuildContext context, GoRouterState state) {
+            return SettingsPage();
           },
         ),
       ],

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_swiper/services/user_service.dart';
 
 class RegistrationForm extends StatefulWidget {
   const RegistrationForm({super.key});
@@ -18,8 +20,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  UserService userServ = UserService();
 
-  String? error;
+  String? errorCode;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +44,9 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
                   return 'Please enter a valid email address.';
                   }
+                  if(errorCode == "email-already-in-use") {
+                    return 'The account already exists for that email.';
+                  }
                   return null;
                 },
               ),
@@ -49,6 +56,12 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   labelText: 'Password',
                 ),
                 controller: passwordController,
+                validator: (value) {
+                  if(errorCode == "weak-password") {
+                    return 'The password provided is too weak.';
+                  }
+                  return null;
+                },
                 obscureText: true,
               ),
               const SizedBox(height: 16),
@@ -61,16 +74,12 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         email: emailController.text,
                         password: passwordController.text,
                       );
+                      userServ.addUser(credential.user?.displayName, credential.user?.email, credential.user?.uid);
                       GoRouter.of(context).go('/');
                     } on FirebaseAuthException catch (e) {
-                      print(e.message);
-                      if (e.code == 'weak-password') {
-                        print('The password provided is too weak.');
-                      } else if (e.code == 'email-already-in-use') {
-                        print('The account already exists for that email.');
-                      }
-                    } catch (e) {
-                      print(e);
+                      setState(() {
+                        errorCode = e.code;
+                      });
                     }
                   }
                 },

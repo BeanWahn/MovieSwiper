@@ -1,18 +1,22 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:movie_swiper/main.dart';
 import 'package:movie_swiper/models/filter_list.dart';
 import 'package:movie_swiper/models/movie.dart';
 import 'package:movie_swiper/presentation/components/footer.dart';
 import 'package:movie_swiper/presentation/components/movie_card.dart';
 import 'package:movie_swiper/services/genre_service.dart';
 import 'package:movie_swiper/services/movies_service.dart';
+import 'package:movie_swiper/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.user});
+  final User? user;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -27,6 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   MoviesService moviesService = MoviesService();
   GenreService genreService = GenreService();
+  UserService userService = UserService();
   List<dynamic> genres = [];
   List<Movie> movies = [];
 
@@ -59,6 +64,19 @@ class _HomePageState extends State<HomePage> {
       }
     }
     return newCards;
+  }
+
+  bool _onSwipe(
+    int previousIndex,
+    int? currentIndex,
+    CardSwiperDirection direction,
+  ) {
+    userService.addMovieToWatchlist(movies[previousIndex].movieId.toString(), user?.uid);
+    debugPrint(movies[previousIndex!].title);
+    debugPrint(
+      'The card $previousIndex was swiped to the ${direction.name}. Now the card $currentIndex is on top',
+    );
+    return true;
   }
 
   @override
@@ -133,6 +151,7 @@ class _HomePageState extends State<HomePage> {
                 if (cards.isNotEmpty) {
                   return SafeArea(
                     child: CardSwiper(
+                      onSwipe: _onSwipe,
                       onEnd: () => {
                         setState(() {
                           resetPageIfEmpty = true;

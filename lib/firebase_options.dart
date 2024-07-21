@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '242846884818',
     projectId: 'movieswiper-b669b',
     storageBucket: 'movieswiper-b669b.appspot.com',
-    iosBundleId: 'com.russellbj.movieSwiper',
+    iosBundleId: 'com.russellbj.movieswiper',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '242846884818',
     projectId: 'movieswiper-b669b',
     storageBucket: 'movieswiper-b669b.appspot.com',
-    iosBundleId: 'com.russellbj.movieSwiper',
+    iosBundleId: 'com.russellbj.movieswiper',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
