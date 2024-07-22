@@ -48,6 +48,23 @@ class UserService {
     return Future.error('Invalid parameters');
   }
 
+  Future<void> addMovieToDislikelist(String? movieId, String? userId) {
+    if(movieId != null && userId != null) {
+      return usersCollection
+          .doc(userId)
+          .collection('dislikelist')
+          .add({'movieId': movieId, 'createdAt': FieldValue.serverTimestamp(), 'updatedAt': FieldValue.serverTimestamp()})
+          .then((value) => print('Movie added to dislikelist successfully'))
+          .catchError((error) => print('Failed to add movie to dislikelist: $error'));
+    }else if(movieId == null) {
+      return Future.error('Movie ID is required');
+    }else if(userId == null) {
+      return Future.error('User ID is required');
+    }
+    
+    return Future.error('Invalid parameters');
+  }
+
   Future<List<Movie>> getWatchlist(String? userId) async {
     List<Movie> watchlist = [];
     if(userId != null) {
@@ -74,6 +91,34 @@ class UserService {
       return Future.error('User ID is required');
     }
     return watchlist;
+  }
+
+  Future<List<Movie>> getDislikelist(String? userId) async {
+    List<Movie> dislikelist = [];
+    if(userId != null) {
+      await usersCollection
+          .doc(userId)
+          .collection('dislikelist')
+          .get()
+          .then((QuerySnapshot querySnapshot) async {
+            for (var doc in querySnapshot.docs) {
+              final data = doc.data() as Map<String, dynamic>;
+              if(data['movieId'] != null) {
+                final url = Uri.parse("https://api.themoviedb.org/3/movie/${data['movieId']}?api_key=7b42befb557378d22a24fdd7011ef7d5");
+                final result = await http.get(url);
+                if (result.statusCode == 200) {
+                  final jsonResponse = json.decode(result.body);
+                  if(jsonResponse != null) {
+                    dislikelist.add(Movie.fromJson(jsonResponse));
+                  }
+                }
+              }
+            }
+          });
+    }else {
+      return Future.error('User ID is required');
+    }
+    return dislikelist;
   }
 
   String getLoginErrorMessage(String errorCode) {

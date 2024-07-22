@@ -37,7 +37,10 @@ class Movie {
       adult: json['adult'],
       backdropPath: json['backdrop_path'],
       posterPath: json['poster_path'],
-      genreIds: json['genre_ids'],
+      genreIds: json['genre_ids'] ??
+          (json['genres'] as List<dynamic>?)
+              ?.map((genre) => genre['id'])
+              .toList(),
       originalLanguage: json['original_language'],
       originalTitle: json['original_title'],
       popularity: json['popularity'],
@@ -47,6 +50,25 @@ class Movie {
       voteCount: json['vote_count'],
       video: json['video'],
       releaseDate: json['release_date'],
+    );
+  }
+}
+
+class FetchMovieResponse {
+  int page;
+  List<Movie> results;
+
+  FetchMovieResponse({
+    required this.page,
+    required this.results,
+  });
+
+  factory FetchMovieResponse.fromJson(Map<String, dynamic> json) {
+    return FetchMovieResponse(
+      page: json['page'],
+      results: (json['results'] as List<dynamic>)
+          .map((movie) => Movie.fromJson(movie))
+          .toList(),
     );
   }
 }

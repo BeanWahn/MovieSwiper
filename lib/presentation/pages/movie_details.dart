@@ -18,35 +18,30 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
   final GenreService genreService = GenreService();
   final MoviesService moviesService = MoviesService();
   final List genres = GenreService().genres;
+  int recommendationPage = 1;
+  final _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
     String movieImage = "https://placehold.co/200x400.png?text=No+Image";
-    if(widget.movie.backdropPath != null) {
-      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.backdropPath!}";
+    if (widget.movie.backdropPath != null) {
+      movieImage =
+          "https://image.tmdb.org/t/p/original${widget.movie.backdropPath!}";
     }
-    if(widget.movie.posterPath != null) {
-      movieImage = "https://image.tmdb.org/t/p/original${widget.movie.posterPath!}";
+    if (widget.movie.posterPath != null) {
+      movieImage =
+          "https://image.tmdb.org/t/p/original${widget.movie.posterPath!}";
     }
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.movie.title),
       ),
       body: ListView(children: [
-        // Container(
-        //     width: double.infinity,
-        //     decoration: BoxDecoration(
-        //       image: DecorationImage(
-        //         image: NetworkImage(
-        //           'https://image.tmdb.org/t/p/original${widget.movie.posterPath ?? widget.movie.backdropPath}',
-        //         ),
-        //         fit: BoxFit.fitWidth,
-        //       ),
-        //     )),
-        Image(image: NetworkImage(
-          movieImage
+        Image(
+          image: NetworkImage(movieImage),
+          fit: BoxFit.fitWidth,
         ),
-        fit: BoxFit.fitWidth,),
         Container(
             padding: const EdgeInsets.all(15),
             child: Column(
@@ -84,47 +79,52 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  "Recommended Movies",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 36),
                 FutureBuilder(
-                    future: moviesService.getRecommendedMovies([widget.movie]),
+                    future: moviesService.getRecommendedMovies([widget.movie],page:recommendationPage),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
                       } else {
-                        if (snapshot.data == null) {
-                          return const Center(
-                            child: Text("No movies found"),
+                        if (snapshot.data == null || snapshot.data!.isEmpty) {
+                          return const SizedBox(height: 35,);
+                        } else {
+                          recommendationPage = snapshot.data!['page'];
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                const Text(
+                                  "Recommended Movies",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.refresh),
+                                    onPressed: () {
+                                      setState(() {
+                                        recommendationPage += 1;
+                                      });
+                                    },
+                                ),
+                              ],),
+                              
+                              const SizedBox(height: 12),
+                              for (Movie movie in snapshot.data!['recommendations'])
+                                MovieThumbnailCard(movie: movie),
+                              const SizedBox(height: 36),
+                            ],
                           );
                         }
                       }
-                      return Column(
-                        children: [
-                          for (Movie movie in snapshot.data!)
-                            if (movie.genreIds != null &&
-                                movie.genreIds!.isNotEmpty &&
-                                widget.movie.genreIds != null &&
-                                widget.movie.genreIds!.isNotEmpty &&
-                                movie.genreIds!
-                                        .toSet()
-                                        .intersection(
-                                            widget.movie.genreIds!.toSet())
-                                        .length >
-                                    1)
-                                    MovieThumbnailCard(movie: movie),
-                                    const SizedBox(height: 12),
-                        ],
-                      );
                     }),
               ],
             ))
@@ -132,7 +132,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
       bottomSheet: SafeArea(
         maintainBottomViewPadding: true,
         minimum: const EdgeInsets.only(bottom: 15),
-        child:Footer(),
+        child: Footer(),
       ),
     );
   }

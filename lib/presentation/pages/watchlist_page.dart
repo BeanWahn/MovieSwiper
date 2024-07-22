@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:movie_swiper/models/movie.dart';
 import 'package:movie_swiper/presentation/components/footer.dart';
 import 'package:movie_swiper/services/user_service.dart';
@@ -37,16 +38,33 @@ class _WatchlistPageState extends State<WatchlistPage> {
               if(watchlist == null || watchlist.isEmpty) {
                 return const Text('No movies in watchlist');
               }else{
-                return ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: watchlist.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(watchlist[index].title),
-                    );
-                  },
-                );
+                return Expanded(child:GridView.count(
+                  crossAxisCount: 2,
+                  children: watchlist.map((movie) {
+                    String movieImage = "https://placehold.co/200x400.png?text=No+Image";
+                    if (movie.backdropPath != null) {
+                      movieImage =
+                          "https://image.tmdb.org/t/p/original${movie.backdropPath!}";
+                    }
+                    if (movie.posterPath != null) {
+                      movieImage =
+                          "https://image.tmdb.org/t/p/original${movie.posterPath!}";
+                    }
+                    return InkWell(onTap:() => context.push('/details',extra: movie),child:Card(
+                      child: Column(
+                        children: [
+                          Image.network(
+                            'https://image.tmdb.org/t/p/w500$movieImage',
+                            fit: BoxFit.cover,
+                            height: 100,
+                            width:100
+                          ),
+                          Text(movie.title),
+                        ],
+                      ),
+                    ));
+                  }).toList(),
+                ));
               }
             }
           },

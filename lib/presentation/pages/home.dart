@@ -23,7 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Random rnd = new Random();
+  Random rnd = Random();
   int min = 1;
   int max = 500;
   int page = 1;
@@ -47,23 +47,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<MovieCard>> getMovies() async {
-    Response response = await moviesService.fetchMovies(page, filters, resetPageIfEmpty: resetPageIfEmpty);
-    resetPageIfEmpty = false;
-    page = json.decode(response.body)['page'];
     List<MovieCard> newCards = [];
-    for (var movie in json.decode(response.body)['results']) {
+    movies = [];
+    try{
+
+    FetchMovieResponse response = await moviesService.fetchMovies(page, filters, user?.uid, resetPageIfEmpty: resetPageIfEmpty);
+    resetPageIfEmpty = false;
+    page = response.page;
+    for (var movie in response.results) {
       try {
-        Movie newMovie = Movie.fromJson(movie);
-        newMovie.releaseDate = newMovie.releaseDate.replaceAll("-", "/");
+        movie.releaseDate = movie.releaseDate.replaceAll("-", "/");
         newCards.add(MovieCard(
-          movie: newMovie,
+          movie: movie,
         ));
-        movies.add(newMovie);
+        movies.add(movie);
       } catch (e) {
         print(e);
       }
     }
+    }
+    catch(e){
+      print(e);
+    }
     return newCards;
+    
   }
 
   bool _onSwipe(
@@ -71,8 +78,13 @@ class _HomePageState extends State<HomePage> {
     int? currentIndex,
     CardSwiperDirection direction,
   ) {
-    userService.addMovieToWatchlist(movies[previousIndex].movieId.toString(), user?.uid);
-    debugPrint(movies[previousIndex!].title);
+    if(direction.name=="right"){
+      userService.addMovieToWatchlist(movies[previousIndex].movieId.toString(), user?.uid);
+    }
+    else if(direction.name=="left"){
+      userService.addMovieToDislikelist(movies[previousIndex].movieId.toString(), user?.uid);
+    }
+    debugPrint(movies[previousIndex].title);
     debugPrint(
       'The card $previousIndex was swiped to the ${direction.name}. Now the card $currentIndex is on top',
     );
@@ -107,12 +119,12 @@ class _HomePageState extends State<HomePage> {
                 children: genres
                     .map((genre) => ListTile(
                           contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                              const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                           minVerticalPadding: 0,
                           selected: filters.genres!.contains(genre['id']),
                           selectedColor: Colors.blue,
                           title: Text("${genre['name']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                               )),
                           onTap: () {
@@ -124,7 +136,6 @@ class _HomePageState extends State<HomePage> {
                                 filters.genres!.add(genre['id']);
                               }
                             });
-                            print(filters.genres);
                           },
                         ))
                     .toList(),
