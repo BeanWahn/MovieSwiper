@@ -11,12 +11,20 @@ class RegistrationPage extends StatefulWidget {
 class _RegistrationPageState extends State<RegistrationPage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: RegistrationForm()
-        ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("Register",
+                    style: Theme.of(context).textTheme.headlineLarge),
+                const SizedBox(height: 16),
+                const RegistrationForm()
+              ],
+            )),
       ),
     );
   }

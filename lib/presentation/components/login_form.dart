@@ -21,7 +21,7 @@ class _LoginFormState extends State<LoginForm> {
   final passwordController = TextEditingController();
   final userService = UserService();
 
-  String? errorCode;
+  AuthException? loginError;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +30,8 @@ class _LoginFormState extends State<LoginForm> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if (loginError?.message != null && loginError?.errorType == 'general')
+            Text(loginError!.message, style: const TextStyle(color: Colors.red)),
           TextFormField(
             controller: emailController,
             validator: (value) {
@@ -40,8 +42,8 @@ class _LoginFormState extends State<LoginForm> {
                   .hasMatch(value)) {
                 return 'Please enter a valid email address.';
               }
-              if (errorCode == "user-not-found") {
-                return 'No user found for that email.';
+              if (loginError?.errorType == 'email') {
+                return loginError?.message;
               }
               return null;
             },
@@ -53,9 +55,8 @@ class _LoginFormState extends State<LoginForm> {
           TextFormField(
             controller: passwordController,
             validator: (value) {
-              print('validating');
-              if (errorCode == "wrong-password") {
-                return 'Wrong password provided for this user.';
+              if (loginError?.errorType == 'password') {
+                return loginError?.message;
               }
               return null;
             },
@@ -74,9 +75,11 @@ class _LoginFormState extends State<LoginForm> {
                       .signInWithEmailAndPassword(
                           email: emailController.text,
                           password: passwordController.text);
+                  print("Signed In");
+                  context.go("/home");
                 } on FirebaseAuthException catch (e) {
                   setState(() {
-                    errorCode = userService.getLoginErrorMessage(e.code);
+                    loginError = userService.getAuthException(e.code);
                   });
                 }
               }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_swiper/presentation/components/footer.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
@@ -20,16 +23,29 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
-      body: ListView(
+      body: SafeArea(child:ListView(
         children: [
           ListTile(
-            title: Text('Log Out'),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            title: Text(
+              style: const TextStyle(fontSize: 13),
+              'Signed in as ${_auth.currentUser?.email}'),
+          ),
+          ListTile(
+            title: const Text('Account'),
+            onTap: () {
+              context.go('/account');
+            },
+          ),
+          ListTile(
+            title: const Text('Log Out'),
             onTap: _logOut,
           ),
         ],
-      ),
+      )),
+      bottomNavigationBar: Footer(),
     );
   }
 }

@@ -7,7 +7,6 @@ import 'package:movie_swiper/models/movie.dart';
 import 'package:movie_swiper/services/user_service.dart';
 
 class MoviesService {
-
   UserService userService = UserService();
 
   Widget buildRatingStars(double rating, bool isOnWhite) {
@@ -29,7 +28,8 @@ class MoviesService {
     );
   }
 
-  Future<Map<String,dynamic>> getRecommendedMovies(List<Movie> movies, {page = 1}) async {
+  Future<Map<String, dynamic>> getRecommendedMovies(List<Movie> movies,
+      {page = 1}) async {
     List<Movie> allRecommendations = [];
     List<Movie> primaryRecommendations = [];
     List<Movie> secondaryRecommendations = [];
@@ -52,28 +52,27 @@ class MoviesService {
               movie.genreIds!.isNotEmpty &&
               newMovie.genreIds != null &&
               newMovie.genreIds!.isNotEmpty) {
-                if(movie.genreIds!
-                      .toSet()
-                      .intersection(newMovie.genreIds!.toSet())
-                      .length >
-                  1){
-                  allRecommendations.add(newMovie);
-                  primaryRecommendations.add(newMovie);
-                }
-                else if(movie.genreIds!
-                      .toSet()
-                      .intersection(newMovie.genreIds!.toSet()).isNotEmpty){
-                  secondaryRecommendations.add(newMovie);
-                }
-                else{
-                  tertiaryRecommendations.add(newMovie);
-                }
+            if (movie.genreIds!
+                    .toSet()
+                    .intersection(newMovie.genreIds!.toSet())
+                    .length >
+                1) {
+              allRecommendations.add(newMovie);
+              primaryRecommendations.add(newMovie);
+            } else if (movie.genreIds!
+                .toSet()
+                .intersection(newMovie.genreIds!.toSet())
+                .isNotEmpty) {
+              secondaryRecommendations.add(newMovie);
+            } else {
+              tertiaryRecommendations.add(newMovie);
+            }
           }
         }
       }
     }
 
-    if(allRecommendations.length < 5){
+    if (allRecommendations.length < 5) {
       for (var movie in secondaryRecommendations) {
         if (allRecommendations.length >= 5) {
           break;
@@ -81,7 +80,7 @@ class MoviesService {
         allRecommendations.add(movie);
       }
     }
-    if(allRecommendations.length < 5){
+    if (allRecommendations.length < 5) {
       for (var movie in tertiaryRecommendations) {
         if (allRecommendations.length >= 5) {
           break;
@@ -89,23 +88,26 @@ class MoviesService {
         allRecommendations.add(movie);
       }
     }
-    if(allRecommendations.isEmpty && page != 1){
+    if (allRecommendations.isEmpty && page != 1) {
       page = 1;
-      Map<String,dynamic> firstPage = await getRecommendedMovies(movies, page:page);
-      if(firstPage.isNotEmpty){
+      Map<String, dynamic> firstPage =
+          await getRecommendedMovies(movies, page: page);
+      if (firstPage.isNotEmpty) {
         allRecommendations = firstPage['recommendations'];
       }
     }
     return {
-      "page":page,
-      "recommendations":allRecommendations,
+      "page": page,
+      "recommendations": allRecommendations,
     };
   }
 
-  Future<FetchMovieResponse> fetchMovies(int page, FilterList? filters, String? userId,
+  Future<FetchMovieResponse> fetchMovies(
+      int page, FilterList? filters, String? userId,
       {bool resetPageIfEmpty = false}) async {
-        List<Movie> watchlist = await userService.getWatchlist(userId);
-        List<Movie> dislikelist = await userService.getDislikelist(userId);
+    List<Movie> watchlist = await userService.getWatchlist(userId);
+    List<Movie> dislikelist = await userService.getDislikelist(userId);
+    print("got Lists");
 
     if (page > 500) {
       page = 1;
@@ -134,12 +136,11 @@ class MoviesService {
         page = (page / 2).round();
       }
       return fetchMovies(page, filters, userId);
-    }
-    else{
+    } else {
       for (var data in json.decode(result.body)['results']) {
         final movie = Movie.fromJson(data);
-        if (!watchlist.any((element) => element.movieId == movie.movieId) && 
-        !dislikelist.any((element) => element.movieId == movie.movieId)) {
+        if (!watchlist.any((element) => element.movieId == movie.movieId) &&
+            !dislikelist.any((element) => element.movieId == movie.movieId)) {
           movies.add(movie);
         }
       }

@@ -9,7 +9,9 @@ class Footer extends StatefulWidget {
 class _FooterState extends State<Footer> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return BottomAppBar(
+      padding: const EdgeInsets.all(0),
+      height: 60,
         child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [

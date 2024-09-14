@@ -23,7 +23,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   UserService userServ = UserService();
 
-  String? errorCode;
+  AuthException? registrationError;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,9 @@ class _RegistrationFormState extends State<RegistrationForm> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          TextFormField(
+          if (registrationError?.message != null && registrationError?.errorType == 'general')
+            Text(registrationError!.message, style: const TextStyle(color: Colors.red)),
+          TextFormField( 
                 decoration: const InputDecoration(
                   labelText: 'Email Address',
                 ), 
@@ -44,8 +46,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
                   return 'Please enter a valid email address.';
                   }
-                  if(errorCode == "email-already-in-use") {
-                    return 'The account already exists for that email.';
+                  if(registrationError?.errorType == 'email') {
+                    return registrationError?.message;
                   }
                   return null;
                 },
@@ -57,8 +59,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 ),
                 controller: passwordController,
                 validator: (value) {
-                  if(errorCode == "weak-password") {
-                    return 'The password provided is too weak.';
+                  if(registrationError?.errorType == 'password') {
+                    return registrationError?.message;
                   }
                   return null;
                 },
@@ -78,7 +80,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                       GoRouter.of(context).go('/');
                     } on FirebaseAuthException catch (e) {
                       setState(() {
-                        errorCode = e.code;
+                        registrationError = userServ.getAuthException(e.code);
                       });
                     }
                   }

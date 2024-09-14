@@ -29,12 +29,9 @@ class _SearchPageState extends State<SearchPage> {
       body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            children: [SearchForm(callback: callback,),const SizedBox(height: 12),SearchResults(movies: movies,),const SizedBox(height: 58,)],
+            children: [SearchForm(callback: callback,),const SizedBox(height: 12),SearchResults(movies: movies,)],
           )),
-          bottomSheet: SafeArea(
-        maintainBottomViewPadding: true,
-        minimum: const EdgeInsets.only(bottom: 15),
-        child:Footer()),
+          bottomNavigationBar: Footer(),
     );
   }
 }

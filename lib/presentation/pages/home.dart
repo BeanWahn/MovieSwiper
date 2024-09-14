@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:movie_swiper/main.dart';
 import 'package:movie_swiper/models/filter_list.dart';
 import 'package:movie_swiper/models/movie.dart';
@@ -15,8 +13,9 @@ import 'package:movie_swiper/services/movies_service.dart';
 import 'package:movie_swiper/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.user});
+  const HomePage({super.key, this.user, this.swipeOnLoad});
   final User? user;
+  final Object? swipeOnLoad;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -32,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   MoviesService moviesService = MoviesService();
   GenreService genreService = GenreService();
   UserService userService = UserService();
+  CardSwiperController cardSwiperController = CardSwiperController();
   List<dynamic> genres = [];
   List<Movie> movies = [];
 
@@ -79,10 +79,10 @@ class _HomePageState extends State<HomePage> {
     CardSwiperDirection direction,
   ) {
     if(direction.name=="right"){
-      userService.addMovieToWatchlist(movies[previousIndex].movieId.toString(), user?.uid);
+      userService.addMovieToWatchlist(movies[previousIndex], user?.uid);
     }
     else if(direction.name=="left"){
-      userService.addMovieToDislikelist(movies[previousIndex].movieId.toString(), user?.uid);
+      userService.addMovieToDislikelist(movies[previousIndex], user?.uid);
     }
     debugPrint(movies[previousIndex].title);
     debugPrint(
@@ -160,8 +160,17 @@ class _HomePageState extends State<HomePage> {
                 }
                 List<MovieCard> cards = snapshot.data!;
                 if (cards.isNotEmpty) {
+                  print("Here");
+                  print(widget.swipeOnLoad);
+                  if(widget.swipeOnLoad == "right"){
+                    cardSwiperController.swipe(CardSwiperDirection.right);
+                  }
+                  else if(widget.swipeOnLoad == "left"){
+                    cardSwiperController.swipe(CardSwiperDirection.left);
+                  }
                   return SafeArea(
                     child: CardSwiper(
+                      controller: cardSwiperController,
                       onSwipe: _onSwipe,
                       onEnd: () => {
                         setState(() {
@@ -186,7 +195,7 @@ class _HomePageState extends State<HomePage> {
               }
             },
           )),
-          Footer()
-        ]));
+        ]),
+        bottomNavigationBar: Footer());
   }
 }

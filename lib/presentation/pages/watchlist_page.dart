@@ -69,8 +69,8 @@ class _WatchlistPageState extends State<WatchlistPage> {
             }
           },
         ),
-        Footer(),
       ]),
+      bottomNavigationBar: Footer(),
     );
   }
 }

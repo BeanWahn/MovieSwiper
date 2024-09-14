@@ -43,7 +43,7 @@ final GoRouter _router = GoRouter(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
         if(user == null) {
-          return LoginPage();
+          return const LoginPage();
         } else {
           return HomePage(user:user);
         }
@@ -52,7 +52,7 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: 'login',
           builder: (BuildContext context, GoRouterState state) {
-            return LoginPage();
+            return const LoginPage();
           },
         ),
         GoRoute(

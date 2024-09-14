@@ -52,6 +52,25 @@ class Movie {
       releaseDate: json['release_date'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': movieId,
+      'adult': adult,
+      'backdrop_path': backdropPath,
+      'poster_path': posterPath,
+      'genre_ids': genreIds,
+      'original_language': originalLanguage,
+      'original_title': originalTitle,
+      'popularity': popularity,
+      'title': title,
+      'overview': overview,
+      'vote_average': voteAverage,
+      'vote_count': voteCount,
+      'video': video,
+      'release_date': releaseDate,
+    };
+  }
 }
 
 class FetchMovieResponse {
